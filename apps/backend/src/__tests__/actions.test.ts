@@ -1,5 +1,6 @@
 import request from 'supertest';
-import { app, server } from '../main';
+import { server } from '../main';
+import app from '../app/app';
 
 afterAll((done) => {
   server.close(done);
