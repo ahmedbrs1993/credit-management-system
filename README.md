@@ -2,8 +2,8 @@
 
 ## Requirements :
 
-* Node.js
-* Nx CLI
+- Node.js
+- Nx CLI
 
 ## Installation
 
@@ -33,4 +33,8 @@ To run tests for the backend, use:
 nx test backend
 ```
 
+To run tests for the frontend, use:
 
+```sh
+nx test frontend
+```

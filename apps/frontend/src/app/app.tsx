@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from './api';
+import api from './api/api';
 import {
   Container,
   Header,
@@ -10,33 +10,24 @@ import {
   Button,
   Credits,
 } from './styledComponents';
-
-interface Action {
-  type: 'A' | 'B' | 'C';
-  credits: number;
-}
-
-interface Credits {
-  A: number;
-  B: number;
-  C: number;
-}
+import { fetchActions, postAction, Action, CreditsType } from './api/actions';
 
 const App: React.FC = () => {
   const [actions, setActions] = useState<Action[]>([]);
   const [pendingActions, setPendingActions] = useState<Action[]>([]);
-  const [credits, setCredits] = useState<Credits>({ A: 0, B: 0, C: 0 });
+  const [credits, setCredits] = useState<CreditsType>({ A: 0, B: 0, C: 0 });
   const [newAction, setNewAction] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchActions = async () => {
+  const loadActions = async () => {
     try {
-      const response = await api.get('/actions');
-      setActions(response.data.actions);
-      setPendingActions(response.data.pendingActions);
-      setCredits(response.data.credits);
-    } catch (error) {
-      console.error('Error fetching actions:', error);
+      const data = await fetchActions();
+      setActions(data.actions);
+      setPendingActions(data.pendingActions);
+      setCredits(data.credits);
+      setErrorMessage(null);
+    } catch {
+      setErrorMessage('Failed to fetch data from server.');
     }
   };
 
@@ -48,17 +39,17 @@ const App: React.FC = () => {
 
     setErrorMessage(null);
     try {
-      await api.post('/actions', { type: newAction });
+      await postAction(newAction);
       setNewAction('');
-      fetchActions();
-    } catch (error) {
-      console.error('Error adding action:', error);
+      await loadActions();
+    } catch {
+      setErrorMessage('Failed to add action.');
     }
   };
 
   useEffect(() => {
-    fetchActions();
-    const interval = setInterval(fetchActions, 15000);
+    loadActions();
+    const interval = setInterval(loadActions, 15000);
     return () => clearInterval(interval);
   }, []);
 
