@@ -5,9 +5,10 @@ import {
   addActionToDB,
   clearActionsTable,
 } from './database'; // Ensure the path is correct
+import { Request, Response, NextFunction } from 'express'; // make sure this is at the top
 
 export const app = express();
-const port: number = 3000;
+const port = 3000;
 
 app.use(bodyParser.json());
 
@@ -57,13 +58,13 @@ app.get('/actions', async (req, res) => {
   }
 });
 
-app.post('/actions', async (req, res) => {
+app.post('/actions', async (req: Request, res: Response): Promise<void> => {
   try {
     const { type } = req.body;
     let credit: number;
 
     if (type !== 'A' && type !== 'B' && type !== 'C') {
-      return res.status(400).json({ message: 'Invalid action type' });
+      res.status(400).json({ message: 'Invalid action type' });
     }
 
     if (actionQueue.length > 0) {
@@ -118,7 +119,7 @@ server.on('close', () => {
   clearInterval(intervalId);
 });
 
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
 });
